@@ -3,51 +3,260 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Laporan Shift Toko</title>
-<script src="https://unpkg.com/@supabase/supabase-js@2"></script>.net/npm/@supabase/supabase-js@2"></script>
+<title>Laporan Shift Toko Modern</title>
+<!-- Google Fonts & Supabase -->
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/@supabase/supabase-js@2"></script>
 <style>
-body{font-family:system-ui;background:#f5f5f5;margin:0;padding:16px}
-.card{background:#fff;padding:16px;border-radius:12px;box-shadow:0 2px 8px rgba(0,0,0,.1);margin-bottom:12px}
-h2{text-align:center;color:#0a5c36;margin:0 0 12px 0;font-size:18px}
-label{font-size:14px;font-weight:600;display:block;margin-top:8px}
-input,select{width:100%;padding:10px;margin-top:4px;border:1px solid #ccc;border-radius:8px;box-sizing:border-box;font-size:16px}
-.section{background:#0a5c36;color:#fff;padding:10px;border-radius:8px;margin-top:12px;font-weight:700;font-size:14px;text-align:center}
-.btn{background:#d32f2f;color:#fff;border:none;padding:16px;width:100%;border-radius:10px;font-size:16px;font-weight:700;margin-top:20px;cursor:pointer}
+:root {
+  --primary: #0a5c36;
+  --primary-light: #e8f5e9;
+  --accent: #2e7d32;
+  --bg: #f8fafc;
+  --card-bg: #ffffff;
+  --text: #1e293b;
+  --text-muted: #64748b;
+  --border: #e2e8f0;
+}
+
+body {
+  font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  margin: 0;
+  padding: 16px;
+  display: flex;
+  justify-content: center;
+}
+
+.container {
+  width: 100%;
+  max-width: 600px;
+}
+
+.card {
+  background: var(--card-bg);
+  padding: 20px;
+  border-radius: 16px;
+  box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.05);
+  margin-bottom: 16px;
+  border: 1px solid var(--border);
+}
+
+h2 {
+  text-align: center;
+  color: var(--primary);
+  margin: 0 0 16px 0;
+  font-size: 20px;
+  font-weight: 700;
+  letter-spacing: -0.5px;
+}
+
+.grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+label {
+  font-size: 13px;
+  font-weight: 600;
+  display: block;
+  margin-top: 10px;
+  color: var(--text-muted);
+}
+
+input, select {
+  width: 100%;
+  padding: 11px 14px;
+  margin-top: 4px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  box-sizing: border-box;
+  font-size: 15px;
+  font-family: inherit;
+  background: #fff;
+  transition: all 0.2s ease;
+}
+
+input:focus, select:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(10, 92, 54, 0.1);
+}
+
+.section-header {
+  background: var(--primary);
+  color: #fff;
+  padding: 10px 14px;
+  border-radius: 10px;
+  margin-bottom: 12px;
+  font-weight: 700;
+  font-size: 13px;
+  letter-spacing: 0.5px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.badge-pct {
+  background: rgba(255, 255, 255, 0.2);
+  padding: 2px 8px;
+  border-radius: 6px;
+  font-size: 12px;
+}
+
+.input-group {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.btn {
+  background: linear-gradient(135deg, #0a5c36 0%, #1b5e20 100%);
+  color: #fff;
+  border: none;
+  padding: 16px;
+  width: 100%;
+  border-radius: 12px;
+  font-size: 16px;
+  font-weight: 700;
+  margin-top: 10px;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(10, 92, 54, 0.2);
+  transition: transform 0.1s ease, opacity 0.2s;
+}
+
+.btn:active {
+  transform: scale(0.98);
+}
+
+.btn:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+@media(max-width: 480px) {
+  body { padding: 8px; }
+  .card { padding: 14px; }
+}
 </style>
 </head>
 <body>
 
-<div class="card">
-  <h2>📱 LAPORAN SHIFT TOKO</h2>
-  <label>Tanggal</label><input type="date" id="tanggal">
-  <label>Shift</label><select id="shift"><option>Shift 1</option><option>Shift 2</option></select>
-  <label>Nama Kasir</label><input type="text" id="kasir">
-  <label>Nama Staff</label><input type="text" id="staff">
-  <label>Nama Toko</label><input type="text" id="toko" value="RAYA KP UTAN">
+<div class="container">
+  <div class="card">
+    <h2>📱 LAPORAN SHIFT TOKO</h2>
+    <div class="grid-2">
+      <div>
+        <label>Tanggal</label>
+        <input type="date" id="tanggal">
+      </div>
+      <div>
+        <label>Shift</label>
+        <select id="shift"><option>Shift 1</option><option>Shift 2</option><option>Shift 3</option></select>
+      </div>
+    </div>
+    <div class="grid-2">
+      <div>
+        <label>Nama Kasir</label>
+        <input type="text" id="kasir" placeholder="Nama Kasir">
+      </div>
+      <div>
+        <label>Nama Staff</label>
+        <input type="text" id="staff" placeholder="Nama Staff">
+      </div>
+    </div>
+    <label>Nama Toko</label>
+    <input type="text" id="toko" value="RAYA KP UTAN">
+  </div>
+
+  <!-- Item Program -->
+  <div class="card">
+    <div class="section-header">1. E-VOUCHER <span class="badge-pct" id="pct_ev">0%</span></div>
+    <div class="input-group">
+      <div><label>Target</label><input type="number" id="ev_target" oninput="calc('ev')"></div>
+      <div><label>Actual</label><input type="number" id="ev_actual" oninput="calc('ev')"></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="section-header">2. PSM TO TARGET QTY <span class="badge-pct" id="pct_psm">0%</span></div>
+    <div class="input-group">
+      <div><label>Target</label><input type="number" id="psm_target" oninput="calc('psm')"></div>
+      <div><label>Actual</label><input type="number" id="psm_actual" oninput="calc('psm')"></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="section-header">3. PWP FOKUS TEBUS <span class="badge-pct" id="pct_pwp">0%</span></div>
+    <div class="input-group">
+      <div><label>Target</label><input type="number" id="pwp_target" oninput="calc('pwp')"></div>
+      <div><label>Actual</label><input type="number" id="pwp_actual" oninput="calc('pwp')"></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="section-header">4. SERGAP <span class="badge-pct" id="pct_sergap">0%</span></div>
+    <div class="input-group">
+      <div><label>Target</label><input type="number" id="sergap_target" oninput="calc('sergap')"></div>
+      <div><label>Actual</label><input type="number" id="sergap_actual" oninput="calc('sergap')"></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="section-header">5. TEBUS BEVERAGE 2.500 <span class="badge-pct" id="pct_bev">0%</span></div>
+    <div class="input-group">
+      <div><label>Target</label><input type="number" id="bev_target" oninput="calc('bev')"></div>
+      <div><label>Actual</label><input type="number" id="bev_actual" oninput="calc('bev')"></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="section-header">6. NEW MEMBER ALFAGIFT <span class="badge-pct" id="pct_member">0%</span></div>
+    <div class="input-group">
+      <div><label>Target</label><input type="number" id="member_target" oninput="calc('member')"></div>
+      <div><label>Actual</label><input type="number" id="member_actual" oninput="calc('member')"></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="section-header">7. TEBUS CEMILAN 10.000 <span class="badge-pct" id="pct_cemilan">0%</span></div>
+    <div class="input-group">
+      <div><label>Target</label><input type="number" id="cemilan_target" oninput="calc('cemilan')"></div>
+      <div><label>Actual</label><input type="number" id="cemilan_actual" oninput="calc('cemilan')"></div>
+    </div>
+  </div>
+
+  <button class="btn" onclick="simpan()">KIRIM LAPORAN</button>
 </div>
 
-<div class="card"><div class="section">1. E-VOUCHER</div><label>Target</label><input type="number" id="ev_target"><label>Actual</label><input type="number" id="ev_actual"></div>
-<div class="card"><div class="section">2. PSM TO TARGET QTY</div><label>Target</label><input type="number" id="psm_target"><label>Actual</label><input type="number" id="psm_actual"></div>
-<div class="card"><div class="section">3. PWP FOKUS TEBUS</div><label>Target</label><input type="number" id="pwp_target"><label>Actual</label><input type="number" id="pwp_actual"></div>
-<div class="card"><div class="section">4. SERGAP</div><label>Target</label><input type="number" id="sergap_target"><label>Actual</label><input type="number" id="sergap_actual"></div>
-<div class="card"><div class="section">5. TEBUS BEVERAGE 2.500</div><label>Target</label><input type="number" id="bev_target"><label>Actual</label><input type="number" id="bev_actual"></div>
-<div class="card"><div class="section">6. NEW MEMBER ALFAGIFT</div><label>Target</label><input type="number" id="member_target"><label>Actual</label><input type="number" id="member_actual"></div>
-<div class="card"><div class="section">7. TEBUS CEMILAN 10.000</div><label>Target</label><input type="number" id="cemilan_target"><label>Actual</label><input type="number" id="cemilan_actual"></div>
-
-<button class="btn" onclick="simpan()">SIMPAN</button>
-
 <script>
-// 1. KONEKSI SUPABASE
+// KONEKSI SUPABASE
 const SUPABASE_URL = "https://zjghpzepkwcjafzbwkkf.supabase.co"
 const SUPABASE_KEY = "sb_publishable_IAc7oNjMYMJ8HgOjDXzVCw_jnfefTXk"
 const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY)
 
 document.getElementById('tanggal').valueAsDate = new Date();
 
-// 2. FUNGSI SIMPAN
+// Fungsi Kalkulator Persentase Otomatis
+function calc(id) {
+  const target = parseFloat(document.getElementById(id + '_target').value) || 0;
+  const actual = parseFloat(document.getElementById(id + '_actual').value) || 0;
+  const badge = document.getElementById('pct_' + id);
+  
+  if (target > 0) {
+    const pct = Math.round((actual / target) * 100);
+    badge.innerText = pct + '%';
+  } else {
+    badge.innerText = '0%';
+  }
+}
+
+// FUNGSI SIMPAN
 async function simpan(){
   const btn = document.querySelector('.btn');
-  btn.innerText = 'MENYIMPAN...';
+  btn.innerText = 'MENYIMPAN KE SERVER...';
   btn.disabled = true;
 
   const data = {
@@ -69,12 +278,15 @@ async function simpan(){
     member_target: parseInt(document.getElementById('member_target').value)||0,
     member_actual: parseInt(document.getElementById('member_actual').value)||0,
     cemilan_target: parseInt(document.getElementById('cemilan_target').value)||0,
-    cemilan_actual: parseInt(document.getElementById('cemilan_actual').value)||0
+    cemilan_actual: parseInt(document.email || document.getElementById('cemilan_actual').value)||0
   }
 
-  if(!data.tanggal ||!data.nama_kasir){
-    alert('Tanggal dan Nama Kasir wajib diisi');
-    btn.innerText = 'SIMPAN';
+  // Perbaikan ambil nilai cemilan actual yang benar
+  data.cemilan_actual = parseInt(document.getElementById('cemilan_actual').value)||0;
+
+  if(!data.tanggal || !data.nama_kasir){
+    alert('⚠️ Tanggal dan Nama Kasir wajib diisi!');
+    btn.innerText = 'KIRIM LAPORAN';
     btn.disabled = false;
     return;
   }
@@ -82,13 +294,13 @@ async function simpan(){
   const { error } = await supabase.from('laporan_shift').insert([data]);
 
   if(error){
-    alert('Gagal simpan: '+error.message)
+    alert('❌ Gagal simpan: '+ error.message);
   } else {
-    alert('✅ Data berhasil disimpan ke online!');
+    alert('🎉 Laporan shift berhasil dikirim dan tersimpan online!');
     location.reload();
   }
 
-  btn.innerText = 'SIMPAN';
+  btn.innerText = 'KIRIM LAPORAN';
   btn.disabled = false;
 }
 </script>
