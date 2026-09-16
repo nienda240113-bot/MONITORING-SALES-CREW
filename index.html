@@ -168,7 +168,7 @@ input:focus, select:focus {
 <div class="container">
   <div class="card" style="text-align: center;">
     <h2>📱 LAPORAN SHIFT TOKO</h2>
-    <div class="status-badge">🟢 Terhubung ke Google Sheets Database</div>
+    <div class="status-badge" id="statusServer">🟢 Sinkronisasi Target Cloud Aktif</div>
   </div>
 
   <div class="card">
@@ -188,14 +188,14 @@ input:focus, select:focus {
       <div><label>Nama Staff</label><input type="text" id="staff" placeholder="Nama Staff" oninput="updatePreview()"></div>
     </div>
     <label>Kode Toko / Nama Toko</label>
-    <input type="text" id="toko" value="RAYA KP UTAN" oninput="updatePreview()">
+    <input type="text" id="toko" value="RAYA KP UTAN" onblur="fetchTargets()" oninput="updatePreview()">
   </div>
 
   <!-- Item Program -->
   <div class="card">
     <div class="section-header">1. E-VOUCHER <span class="badge-pct" id="pct_ev">0%</span></div>
     <div class="input-group">
-      <div><label>Target</label><input type="number" id="ev_target" oninput="calc('ev')"></div>
+      <div><label>Target</label><input type="number" id="ev_target" oninput="autoSaveTarget(); calc('ev')"></div>
       <div><label>Actual</label><input type="number" id="ev_actual" oninput="calc('ev')"></div>
     </div>
   </div>
@@ -203,7 +203,7 @@ input:focus, select:focus {
   <div class="card">
     <div class="section-header">2. PSM TO TARGET QTY <span class="badge-pct" id="pct_psm">0%</span></div>
     <div class="input-group">
-      <div><label>Target</label><input type="number" id="psm_target" oninput="calc('psm')"></div>
+      <div><label>Target</label><input type="number" id="psm_target" oninput="autoSaveTarget(); calc('psm')"></div>
       <div><label>Actual</label><input type="number" id="psm_actual" oninput="calc('psm')"></div>
     </div>
   </div>
@@ -211,7 +211,7 @@ input:focus, select:focus {
   <div class="card">
     <div class="section-header">3. PWP FOKUS TEBUS <span class="badge-pct" id="pct_pwp">0%</span></div>
     <div class="input-group">
-      <div><label>Target</label><input type="number" id="pwp_target" oninput="calc('pwp')"></div>
+      <div><label>Target</label><input type="number" id="pwp_target" oninput="autoSaveTarget(); calc('pwp')"></div>
       <div><label>Actual</label><input type="number" id="pwp_actual" oninput="calc('pwp')"></div>
     </div>
   </div>
@@ -219,7 +219,7 @@ input:focus, select:focus {
   <div class="card">
     <div class="section-header">4. SERGAP <span class="badge-pct" id="pct_sergap">0%</span></div>
     <div class="input-group">
-      <div><label>Target</label><input type="number" id="sergap_target" oninput="calc('sergap')"></div>
+      <div><label>Target</label><input type="number" id="sergap_target" oninput="autoSaveTarget(); calc('sergap')"></div>
       <div><label>Actual</label><input type="number" id="sergap_actual" oninput="calc('sergap')"></div>
     </div>
   </div>
@@ -227,7 +227,7 @@ input:focus, select:focus {
   <div class="card">
     <div class="section-header">5. TEBUS BEVERAGE 2.500 <span class="badge-pct" id="pct_bev">0%</span></div>
     <div class="input-group">
-      <div><label>Target</label><input type="number" id="bev_target" oninput="calc('bev')"></div>
+      <div><label>Target</label><input type="number" id="bev_target" oninput="autoSaveTarget(); calc('bev')"></div>
       <div><label>Actual</label><input type="number" id="bev_actual" oninput="calc('bev')"></div>
     </div>
   </div>
@@ -235,7 +235,7 @@ input:focus, select:focus {
   <div class="card">
     <div class="section-header">6. NEW MEMBER ALFAGIFT <span class="badge-pct" id="pct_member">0%</span></div>
     <div class="input-group">
-      <div><label>Target</label><input type="number" id="member_target" oninput="calc('member')"></div>
+      <div><label>Target</label><input type="number" id="member_target" oninput="autoSaveTarget(); calc('member')"></div>
       <div><label>Actual</label><input type="number" id="member_actual" oninput="calc('member')"></div>
     </div>
   </div>
@@ -243,7 +243,7 @@ input:focus, select:focus {
   <div class="card">
     <div class="section-header">7. TEBUS CEMILAN 10.000 <span class="badge-pct" id="pct_cemilan">0%</span></div>
     <div class="input-group">
-      <div><label>Target</label><input type="number" id="cemilan_target" oninput="calc('cemilan')"></div>
+      <div><label>Target</label><input type="number" id="cemilan_target" oninput="autoSaveTarget(); calc('cemilan')"></div>
       <div><label>Actual</label><input type="number" id="cemilan_actual" oninput="calc('cemilan')"></div>
     </div>
   </div>
@@ -255,19 +255,84 @@ input:focus, select:focus {
   </div>
 
   <!-- TOMBOL AKSI -->
-  <button class="btn" id="btnSimpan" onclick="simpanKeGoogleSheets()">💾 SIMPAN KE GOOGLE SHEETS</button>
+  <button class="btn" id="btnSimpan" onclick="simpanKeGoogleSheets()">💾 SIMPAN LAPORAN KE GOOGLE SHEETS</button>
   <button class="btn btn-wa" onclick="kirimKeWhatsApp()">📤 KIRIM LAPORAN KE WHATSAPP</button>
 </div>
 
 <script>
-// URL WEB APP GOOGLE APPS SCRIPT ANDA
-const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzwCNDmfEEUOZcM9wOpfvbCM-WoLeK7Td7nZ78GqocMmQytSmK3Pfbb0voQXwn_M2LB/exec";
+// URL WEB APP TERBARU SESUAI PERMINTAAN
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyQTjYdyAFnXo0rpSjkwVd0G2djepLDkLI5XTOAJ240SMX_BjSgtY1vdFch0_4OBy4/exec";
+const targetIds = ['ev_target', 'psm_target', 'pwp_target', 'sergap_target', 'bev_target', 'member_target', 'cemilan_target'];
 
 document.getElementById('tanggal').valueAsDate = new Date();
 
 window.onload = function() {
-  updatePreview();
+  fetchTargets();
 };
+
+// Fungsi Ambil Target dari Google Sheets berdasarkan Kode Toko
+async function fetchTargets() {
+  const storeCode = document.getElementById('toko').value.trim();
+  if (!storeCode) return;
+
+  document.getElementById('statusServer').innerText = "⏳ Memuat target dari Cloud...";
+  
+  try {
+    const response = await fetch(`${SCRIPT_URL}?storeCode=${encodeURIComponent(storeCode)}`);
+    const data = await response.json();
+    
+    if (data.target && data.target !== "{}") {
+      const parsedTarget = JSON.parse(data.target);
+      targetIds.forEach(id => {
+        if (parsedTarget[id] !== undefined) {
+          document.getElementById(id).value = parsedTarget[id];
+          let baseId = id.replace('_target', '');
+          calc(baseId);
+        }
+      });
+      document.getElementById('statusServer').innerText = "🟢 Target Tersinkron dari Cloud";
+    } else {
+      document.getElementById('statusServer').innerText = "🟢 Siap (Belum ada target di Cloud)";
+    }
+  } catch (err) {
+    document.getElementById('statusServer').innerText = "⚠️ Gagal memuat dari Cloud";
+  }
+}
+
+// Fungsi Simpan Target Otomatis ke Google Sheets saat diketik
+let saveTimeout;
+function autoSaveTarget() {
+  clearTimeout(saveTimeout);
+  saveTimeout = setTimeout(async () => {
+    const storeCode = document.getElementById('toko').value.trim();
+    if (!storeCode) return;
+
+    const targetData = {};
+    targetIds.forEach(id => {
+      targetData[id] = document.getElementById(id).value;
+    });
+
+    const payload = {
+      action: "saveTarget",
+      StoreCode: storeCode,
+      JSONTarget: JSON.stringify(targetData)
+    };
+
+    document.getElementById('statusServer').innerText = "💾 Menyimpan target...";
+
+    try {
+      await fetch(SCRIPT_URL, {
+        method: 'POST',
+        mode: 'no-cors',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      document.getElementById('statusServer').innerText = "🟢 Target Tersimpan Otomatis ke Cloud";
+    } catch (err) {
+      document.getElementById('statusServer').innerText = "❌ Gagal menyimpan target";
+    }
+  }, 1000);
+}
 
 function getVal(id) {
   return parseInt(document.getElementById(id).value) || 0;
@@ -332,7 +397,7 @@ function kirimKeWhatsApp() {
   window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(generateWAMessage())}`, '_blank');
 }
 
-// FUNGSI SIMPAN KE GOOGLE SHEETS
+// SIMPAN LAPORAN HARIAN KE GOOGLE SHEETS
 async function simpanKeGoogleSheets(){
   const btn = document.getElementById('btnSimpan');
   const tanggal = document.getElementById('tanggal').value;
@@ -344,10 +409,9 @@ async function simpanKeGoogleSheets(){
     return;
   }
 
-  btn.innerText = 'MENYIMPAN KE SHEETS...';
+  btn.innerText = 'MENYIMPAN LAPORAN...';
   btn.disabled = true;
 
-  // Bungkus data ke dalam format JSON sesuai struktur tabel sheets Anda (Timestamp, StoreCode, Tanggal, JSONData)
   const detailData = {
     shift: document.getElementById('shift').value,
     nama_kasir: kasir,
@@ -370,16 +434,17 @@ async function simpanKeGoogleSheets(){
   try {
     await fetch(SCRIPT_URL, {
       method: 'POST',
-      mode: 'no-cors', // Penting untuk Apps Script Web App
+      mode: 'no-cors',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload)
     });
 
-    alert('🎉 Data Berhasil Disimpan ke Google Sheets!');
-    location.reload();
+    alert('🎉 Laporan Shift Berhasil Disimpan ke Google Sheets!');
+    btn.innerText = '💾 SIMPAN LAPORAN KE GOOGLE SHEETS';
+    btn.disabled = false;
   } catch (err) {
     alert('❌ Gagal menyimpan: ' + err.message);
-    btn.innerText = '💾 SIMPAN KE GOOGLE SHEETS';
+    btn.innerText = '💾 SIMPAN LAPORAN KE GOOGLE SHEETS';
     btn.disabled = false;
   }
 }
