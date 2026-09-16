@@ -152,7 +152,7 @@ input:focus, select:focus {
   font-size: 13px;
   white-space: pre-wrap;
   color: #111b21;
-  max-height: 220px;
+  max-height: 250px;
   overflow-y: auto;
   margin-top: 8px;
 }
@@ -188,7 +188,7 @@ input:focus, select:focus {
       <div><label>Nama Staff</label><input type="text" id="staff" placeholder="Nama Staff" oninput="updatePreview()"></div>
     </div>
     <label>Kode Toko / Nama Toko</label>
-    <input type="text" id="toko" value="RAYA KP UTAN" onblur="fetchTargets()" oninput="updatePreview()">
+    <input type="text" id="toko" value="RAYA KP. UTAN" onblur="fetchTargets()" oninput="updatePreview()">
   </div>
 
   <!-- Item Program -->
@@ -350,33 +350,72 @@ function calc(id) {
 function generateWAMessage() {
   const toko = document.getElementById('toko').value || '-';
   const tanggal = document.getElementById('tanggal').value || '-';
-  const shift = document.getElementById('shift').value || '-';
-  const kasir = document.getElementById('kasir').value || '-';
-  const staff = document.getElementById('staff').value || '-';
+  const shiftText = document.getElementById('shift').value || '-';
+  const shiftNum = shiftText.replace('Shift ', '');
+  const kasir = (document.getElementById('kasir').value || '-').toLowerCase();
+  const staff = (document.getElementById('staff').value || '-').toLowerCase();
 
-  const programs = [
-    { name: "E-Voucher", t: getVal('ev_target'), a: getVal('ev_actual'), labelT: "Target", labelA: "Actual" },
-    { name: "PSM Target Qty", t: getVal('psm_target'), a: getVal('psm_actual'), labelT: "Target", labelA: "Actual" },
-    { name: "PWP Fokus Tebus", t: getVal('pwp_target'), a: getVal('pwp_actual'), labelT: "Target", labelA: "Actual" },
-    { name: "Sergap", t: getVal('sergap_target'), a: getVal('sergap_actual'), labelT: "Target", labelA: "Actual" },
-    { name: "TEBUS SUEEGEER", t: getVal('bev_target'), a: getVal('bev_actual'), labelT: "Syarat", labelA: "Redem" },
-    { name: "New Member Alfagift", t: getVal('member_target'), a: getVal('member_actual'), labelT: "Target", labelA: "Actual" },
-    { name: "TEBUS CEBAN", t: getVal('cemilan_target'), a: getVal('cemilan_actual'), labelT: "Syarat", labelA: "Redem" }
-  ];
+  const evT = getVal('ev_target'); const evA = getVal('ev_actual');
+  const psmT = getVal('psm_target'); const psmA = getVal('psm_actual');
+  const pwpT = getVal('pwp_target'); const pwpA = getVal('pwp_actual');
+  const sergapT = getVal('sergap_target'); const sergapA = getVal('sergap_actual');
+  const bevT = getVal('bev_target'); const bevA = getVal('bev_actual');
+  const memberT = getVal('member_target'); const memberA = getVal('member_actual');
+  const cemilanT = getVal('cemilan_target'); const cemilanA = getVal('cemilan_actual');
 
-  let text = `*LAPORAN SHIFT TOKO*\n`;
-  text += `🏪 Toko: *${toko}*\n`;
-  text += `📅 Tanggal: ${tanggal}\n`;
-  text += `⏰ Shift: ${shift}\n`;
-  text += `👤 Kasir: ${kasir}\n`;
-  text += `👥 Staff: ${staff}\n`;
-  text += `----------------------------------\n`;
-  text += `*PENCAPAIAN PROGRAM:*\n`;
+  let text = `TGL : ${tanggal}\n`;
+  text += `SHIFT : ${shiftNum}\n`;
+  text += `NAMA KASIR : ${kasir}\n`;
+  text += `NAMA STAFF : ${staff}\n`;
+  text += `TOKO : ${toko}\n\n`;
 
-  programs.forEach((p, index) => {
-    let pct = p.t > 0 ? Math.round((p.a / p.t) * 100) : 100;
-    text += `${index + 1}. *${p.name}* -> ${p.labelT}: ${p.t} | ${p.labelA}: ${p.a} (${pct}%)\n`;
-  });
+  // 1. E VOUCHER
+  text += `*E VOUCHER*\n`;
+  text += `- TARGET SHIFT: ${evT.toLocaleString('id-ID')}\n`;
+  text += `- ACTUAL SHIFT: ${evA.toLocaleString('id-ID')}\n`;
+  text += `- ACH TO TARGET: ${getPct(evT, evA)}\n\n`;
+
+  // 2. PSM TO TARGET QTY
+  text += `*PSM TO TARGET QTY*\n`;
+  text += `- TARGET SHIFT: ${psmT}\n`;
+  text += `- ACTUAL JUAL: ${psmA}\n`;
+  text += `- ACH TO TARGET: ${getPct(psmT, psmA)}\n\n`;
+
+  // 3. PWP FOKUS TEBUS
+  text += `*PWP FOKUS TEBUS*\n`;
+  text += `- TARGET SHIFT: ${pwpT}\n`;
+  text += `- ACTUAL SHIFT: ${pwpA}\n`;
+  text += `- ACV SHIFT: ${getPct(pwpT, pwpA)}\n\n`;
+
+  // 4. SERGAP
+  text += `*SERGAP*\n`;
+  text += `- TARGET SHIFT: ${sergapT}\n`;
+  text += `- ACTUAL JUAL: ${sergapA}\n`;
+  text += `- ACH TO TARGET: ${getPct(sergapT, sergapA)}\n\n`;
+
+  // 5. TEBUS SUEEGEER
+  text += `*TEBUS SUEEGEER*\n`;
+  text += `- SYARAT: ${bevT}\n`;
+  text += `- REDEM: ${bevA}\n`;
+  text += `- ACV : ${getPct(bevT, bevA)}\n\n`;
+
+  // 6. NEW MEMBER ALFAGIFT
+  text += `*NEW MEMBER ALFAGIFT*\n`;
+  text += `- TARGET SHIFT: ${memberT}\n`;
+  text += `- ACTUAL: ${memberA}\n`;
+  if (memberT > 0 || memberA > 0) {
+    text += `- ACH TO TARGET: ${getPct(memberT, memberA)}\n`;
+  }
+  text += `\n`;
+
+  // 7. TEBUS CEBAN
+  text += `*TEBUS CEBAN*\n`;
+  text += `- SYARAT: ${cemilanT}\n`;
+  text += `- REDEM: ${cemilanA}\n`;
+  text += `- ACV : ${getPct(cemilanT, cemilanA)}\n\n`;
+
+  text += `#SEMANGAT\n`;
+  text += `#GASSSPOLL`;
 
   return text;
 }
