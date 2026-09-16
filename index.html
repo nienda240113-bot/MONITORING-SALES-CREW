@@ -225,10 +225,10 @@ input:focus, select:focus {
   </div>
 
   <div class="card">
-    <div class="section-header">5. TEBUS BEVERAGE 2.500 <span class="badge-pct" id="pct_bev">0%</span></div>
+    <div class="section-header">5. TEBUS SUEEGEER <span class="badge-pct" id="pct_bev">0%</span></div>
     <div class="input-group">
-      <div><label>Target</label><input type="number" id="bev_target" oninput="autoSaveTarget(); calc('bev')"></div>
-      <div><label>Actual</label><input type="number" id="bev_actual" oninput="calc('bev')"></div>
+      <div><label>Syarat</label><input type="number" id="bev_target" oninput="autoSaveTarget(); calc('bev')"></div>
+      <div><label>Redem</label><input type="number" id="bev_actual" oninput="calc('bev')"></div>
     </div>
   </div>
 
@@ -241,10 +241,10 @@ input:focus, select:focus {
   </div>
 
   <div class="card">
-    <div class="section-header">7. TEBUS CEMILAN 10.000 <span class="badge-pct" id="pct_cemilan">0%</span></div>
+    <div class="section-header">7. TEBUS CEBAN <span class="badge-pct" id="pct_cemilan">0%</span></div>
     <div class="input-group">
-      <div><label>Target</label><input type="number" id="cemilan_target" oninput="autoSaveTarget(); calc('cemilan')"></div>
-      <div><label>Actual</label><input type="number" id="cemilan_actual" oninput="calc('cemilan')"></div>
+      <div><label>Syarat</label><input type="number" id="cemilan_target" oninput="autoSaveTarget(); calc('cemilan')"></div>
+      <div><label>Redem</label><input type="number" id="cemilan_actual" oninput="calc('cemilan')"></div>
     </div>
   </div>
 
@@ -260,7 +260,6 @@ input:focus, select:focus {
 </div>
 
 <script>
-// URL WEB APP TERBARU SESUAI PERMINTAAN
 const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyQTjYdyAFnXo0rpSjkwVd0G2djepLDkLI5XTOAJ240SMX_BjSgtY1vdFch0_4OBy4/exec";
 const targetIds = ['ev_target', 'psm_target', 'pwp_target', 'sergap_target', 'bev_target', 'member_target', 'cemilan_target'];
 
@@ -270,7 +269,6 @@ window.onload = function() {
   fetchTargets();
 };
 
-// Fungsi Ambil Target dari Google Sheets berdasarkan Kode Toko
 async function fetchTargets() {
   const storeCode = document.getElementById('toko').value.trim();
   if (!storeCode) return;
@@ -299,7 +297,6 @@ async function fetchTargets() {
   }
 }
 
-// Fungsi Simpan Target Otomatis ke Google Sheets saat diketik
 let saveTimeout;
 function autoSaveTarget() {
   clearTimeout(saveTimeout);
@@ -358,13 +355,13 @@ function generateWAMessage() {
   const staff = document.getElementById('staff').value || '-';
 
   const programs = [
-    { name: "E-Voucher", t: getVal('ev_target'), a: getVal('ev_actual') },
-    { name: "PSM Target Qty", t: getVal('psm_target'), a: getVal('psm_actual') },
-    { name: "PWP Fokus Tebus", t: getVal('pwp_target'), a: getVal('pwp_actual') },
-    { name: "Sergap", t: getVal('sergap_target'), a: getVal('sergap_actual') },
-    { name: "Tebus Beverage 2.500", t: getVal('bev_target'), a: getVal('bev_actual') },
-    { name: "New Member Alfagift", t: getVal('member_target'), a: getVal('member_actual') },
-    { name: "Tebus Cemilan 10.000", t: getVal('cemilan_target'), a: getVal('cemilan_actual') }
+    { name: "E-Voucher", t: getVal('ev_target'), a: getVal('ev_actual'), labelT: "Target", labelA: "Actual" },
+    { name: "PSM Target Qty", t: getVal('psm_target'), a: getVal('psm_actual'), labelT: "Target", labelA: "Actual" },
+    { name: "PWP Fokus Tebus", t: getVal('pwp_target'), a: getVal('pwp_actual'), labelT: "Target", labelA: "Actual" },
+    { name: "Sergap", t: getVal('sergap_target'), a: getVal('sergap_actual'), labelT: "Target", labelA: "Actual" },
+    { name: "TEBUS SUEEGEER", t: getVal('bev_target'), a: getVal('bev_actual'), labelT: "Syarat", labelA: "Redem" },
+    { name: "New Member Alfagift", t: getVal('member_target'), a: getVal('member_actual'), labelT: "Target", labelA: "Actual" },
+    { name: "TEBUS CEBAN", t: getVal('cemilan_target'), a: getVal('cemilan_actual'), labelT: "Syarat", labelA: "Redem" }
   ];
 
   let text = `*LAPORAN SHIFT TOKO*\n`;
@@ -378,7 +375,7 @@ function generateWAMessage() {
 
   programs.forEach((p, index) => {
     let pct = p.t > 0 ? Math.round((p.a / p.t) * 100) : 100;
-    text += `${index + 1}. *${p.name}* -> Target: ${p.t} | Actual: ${p.a} (${pct}%)\n`;
+    text += `${index + 1}. *${p.name}* -> ${p.labelT}: ${p.t} | ${p.labelA}: ${p.a} (${pct}%)\n`;
   });
 
   return text;
@@ -397,7 +394,6 @@ function kirimKeWhatsApp() {
   window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(generateWAMessage())}`, '_blank');
 }
 
-// SIMPAN LAPORAN HARIAN KE GOOGLE SHEETS
 async function simpanKeGoogleSheets(){
   const btn = document.getElementById('btnSimpan');
   const tanggal = document.getElementById('tanggal').value;
