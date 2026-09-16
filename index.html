@@ -3,10 +3,9 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Laporan Shift Toko - WhatsApp & Cloud</title>
-<!-- Google Fonts & Supabase -->
+<title>Laporan Shift Toko - Google Sheets</title>
+<!-- Google Fonts -->
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
-<script src="https://unpkg.com/@supabase/supabase-js@2"></script>
 <style>
 :root {
   --primary: #0a5c36;
@@ -50,7 +49,6 @@ h2 {
   margin: 0 0 16px 0;
   font-size: 20px;
   font-weight: 700;
-  letter-spacing: -0.5px;
 }
 
 .grid-2 {
@@ -124,7 +122,6 @@ input:focus, select:focus {
   margin-top: 10px;
   cursor: pointer;
   box-shadow: 0 4px 12px rgba(10, 92, 54, 0.2);
-  transition: transform 0.1s ease;
 }
 
 .btn-wa {
@@ -142,12 +139,10 @@ input:focus, select:focus {
   font-size: 12px;
   font-weight: 600;
   margin-bottom: 12px;
-  background: #e2e8f0;
-  color: #475569;
+  background: #dcfce7;
+  color: #166534;
 }
-.status-badge.online { background: #dcfce7; color: #166534; }
 
-/* Kotak Preview WhatsApp */
 .wa-preview {
   background: #efeae2;
   border: 1px solid #cbd5e1;
@@ -162,21 +157,6 @@ input:focus, select:focus {
   margin-top: 8px;
 }
 
-/* Tabel Riwayat Cloud */
-.history-box {
-  max-height: 200px;
-  overflow-y: auto;
-  font-size: 13px;
-  margin-top: 10px;
-}
-.history-item {
-  padding: 8px 10px;
-  border-bottom: 1px solid var(--border);
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
 @media(max-width: 480px) {
   body { padding: 8px; }
   .card { padding: 14px; }
@@ -188,7 +168,7 @@ input:focus, select:focus {
 <div class="container">
   <div class="card" style="text-align: center;">
     <h2>📱 LAPORAN SHIFT TOKO</h2>
-    <div id="connectionStatus" class="status-badge">Menghubungkan ke Cloud...</div>
+    <div class="status-badge">🟢 Terhubung ke Google Sheets Database</div>
   </div>
 
   <div class="card">
@@ -207,7 +187,7 @@ input:focus, select:focus {
       <div><label>Nama Kasir</label><input type="text" id="kasir" placeholder="Nama Kasir" oninput="updatePreview()"></div>
       <div><label>Nama Staff</label><input type="text" id="staff" placeholder="Nama Staff" oninput="updatePreview()"></div>
     </div>
-    <label>Nama Toko</label>
+    <label>Kode Toko / Nama Toko</label>
     <input type="text" id="toko" value="RAYA KP UTAN" oninput="updatePreview()">
   </div>
 
@@ -275,49 +255,22 @@ input:focus, select:focus {
   </div>
 
   <!-- TOMBOL AKSI -->
-  <button class="btn" onclick="simpanKeCloud()">💾 SIMPAN PERMANEN KE CLOUD</button>
+  <button class="btn" id="btnSimpan" onclick="simpanKeGoogleSheets()">💾 SIMPAN KE GOOGLE SHEETS</button>
   <button class="btn btn-wa" onclick="kirimKeWhatsApp()">📤 KIRIM LAPORAN KE WHATSAPP</button>
-
-  <!-- Kotak Riwayat Cloud -->
-  <div class="card" style="margin-top: 16px;">
-    <div class="section-header" style="background: #334155;">📋 5 DATA TERAKHIR DI CLOUD</div>
-    <div id="historyList" class="history-box">
-      <div style="text-align:center; color:#64748b; padding: 10px;">Memuat data riwayat...</div>
-    </div>
-  </div>
 </div>
 
 <script>
-// KONEKSI SUPABASE
-const SUPABASE_URL = "https://zjghpzepkwcjafzbwkkf.supabase.co"
-const SUPABASE_KEY = "sb_publishable_IAc7oNjMYMJ8HgOjDXzVCw_jnfefTXk"
-const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY)
+// URL WEB APP GOOGLE APPS SCRIPT ANDA
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzwCNDmfEEUOZcM9wOpfvbCM-WoLeK7Td7nZ78GqocMmQytSmK3Pfbb0voQXwn_M2LB/exec";
 
 document.getElementById('tanggal').valueAsDate = new Date();
 
-window.onload = async function() {
-  checkConnection();
-  loadCloudHistory();
+window.onload = function() {
   updatePreview();
 };
 
-async function checkConnection() {
-  const statusEl = document.getElementById('connectionStatus');
-  try {
-    const { error } = await supabase.from('laporan_shift').select('*', { count: 'exact', head: true });
-    if (!error) {
-      statusEl.innerText = "🟢 Terhubung ke Cloud Supabase (Aman)";
-      statusEl.classList.add('online');
-    } else {
-      statusEl.innerText = "🔴 Gagal terhubung ke Cloud";
-    }
-  } catch (e) {
-    statusEl.innerText = "🔴 Koneksi Cloud Terputus";
-  }
-}
-
 function getVal(id) {
-  return parseFloat(document.getElementById(id).value) || 0;
+  return parseInt(document.getElementById(id).value) || 0;
 }
 
 function getPct(target, actual) {
@@ -332,7 +285,6 @@ function calc(id) {
   updatePreview();
 }
 
-// FUNGSI MEMBUAT TEKS FORMAT WHATSAPP
 function generateWAMessage() {
   const toko = document.getElementById('toko').value || '-';
   const tanggal = document.getElementById('tanggal').value || '-';
@@ -357,111 +309,79 @@ function generateWAMessage() {
   text += `👤 Kasir: ${kasir}\n`;
   text += `👥 Staff: ${staff}\n`;
   text += `----------------------------------\n`;
-  text += `*PENCAPAIAN PROGRAM PROGRAM:*\n`;
+  text += `*PENCAPAIAN PROGRAM:*\n`;
 
   programs.forEach((p, index) => {
-    let pct = p.t > 0 ? Math.round((p.a / p.t) * 100) : 0;
-    text += `${index + 1}. *${p.name}*\n`;
-    text += `   Target: ${p.t} | Actual: ${p.a} (${pct}%)\n`;
+    let pct = p.t > 0 ? Math.round((p.a / p.t) * 100) : 100;
+    text += `${index + 1}. *${p.name}* -> Target: ${p.t} | Actual: ${p.a} (${pct}%)\n`;
   });
-
-  text += `----------------------------------\n`;
-  text += `_Laporan dikirim otomatis via Web App_`;
 
   return text;
 }
 
-// UPDATE PREVIEW SECARA LIVE
 function updatePreview() {
   document.getElementById('waPreviewBox').innerText = generateWAMessage();
 }
 
-// KIRIM KE WHATSAPP
 function kirimKeWhatsApp() {
   const kasir = document.getElementById('kasir').value;
   if (!kasir) {
     alert('⚠️ Harap isi Nama Kasir terlebih dahulu!');
     return;
   }
-  const message = generateWAMessage();
-  const encodedMessage = encodeURIComponent(message);
-  window.open(`https://api.whatsapp.com/send?text=${encodedMessage}`, '_blank');
+  window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(generateWAMessage())}`, '_blank');
 }
 
-// FUNGSI SIMPAN KE CLOUD
-async function simpanKeCloud(){
-  const btn = document.querySelectorAll('.btn')[0];
-  btn.innerText = 'MENYIMPAN KE CLOUD...';
+// FUNGSI SIMPAN KE GOOGLE SHEETS
+async function simpanKeGoogleSheets(){
+  const btn = document.getElementById('btnSimpan');
+  const tanggal = document.getElementById('tanggal').value;
+  const kasir = document.getElementById('kasir').value;
+  const toko = document.getElementById('toko').value;
+
+  if(!tanggal || !kasir){
+    alert('⚠️ Tanggal dan Nama Kasir wajib diisi!');
+    return;
+  }
+
+  btn.innerText = 'MENYIMPAN KE SHEETS...';
   btn.disabled = true;
 
-  const data = {
-    tanggal: document.getElementById('tanggal').value,
+  // Bungkus data ke dalam format JSON sesuai struktur tabel sheets Anda (Timestamp, StoreCode, Tanggal, JSONData)
+  const detailData = {
     shift: document.getElementById('shift').value,
-    nama_kasir: document.getElementById('kasir').value,
+    nama_kasir: kasir,
     nama_staff: document.getElementById('staff').value,
-    nama_toko: document.getElementById('toko').value,
-    ev_target: getVal('ev_target'),
-    ev_actual: getVal('ev_actual'),
-    psm_target: getVal('psm_target'),
-    psm_actual: getVal('psm_actual'),
-    pwp_target: getVal('pwp_target'),
-    pwp_actual: getVal('pwp_actual'),
-    sergap_target: getVal('sergap_target'),
-    sergap_actual: getVal('sergap_actual'),
-    bev_target: getVal('bev_target'),
-    bev_actual: getVal('bev_actual'),
-    member_target: getVal('member_target'),
-    member_actual: getVal('member_actual'),
-    cemilan_target: getVal('cemilan_target'),
-    cemilan_actual: getVal('cemilan_actual')
-  }
+    ev_target: getVal('ev_target'), ev_actual: getVal('ev_actual'),
+    psm_target: getVal('psm_target'), psm_actual: getVal('psm_actual'),
+    pwp_target: getVal('pwp_target'), pwp_actual: getVal('pwp_actual'),
+    sergap_target: getVal('sergap_target'), sergap_actual: getVal('sergap_actual'),
+    bev_target: getVal('bev_target'), bev_actual: getVal('bev_actual'),
+    member_target: getVal('member_target'), member_actual: getVal('member_actual'),
+    cemilan_target: getVal('cemilan_target'), cemilan_actual: getVal('cemilan_actual')
+  };
 
-  if(!data.tanggal || !data.nama_kasir){
-    alert('⚠️ Tanggal dan Nama Kasir wajib diisi!');
-    btn.innerText = '💾 SIMPAN PERMANEN KE CLOUD';
-    btn.disabled = false;
-    return;
-  }
+  const payload = {
+    StoreCode: toko,
+    Tanggal: tanggal,
+    JSONData: JSON.stringify(detailData)
+  };
 
-  const { error } = await supabase.from('laporan_shift').insert([data]);
+  try {
+    await fetch(SCRIPT_URL, {
+      method: 'POST',
+      mode: 'no-cors', // Penting untuk Apps Script Web App
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
 
-  if(error){
-    alert('❌ Gagal menyimpan ke cloud: '+ error.message);
-    btn.innerText = '💾 SIMPAN PERMANEN KE CLOUD';
-    btn.disabled = false;
-  } else {
-    alert('🎉 Data Berhasil Disimpan Permanen ke Cloud!');
+    alert('🎉 Data Berhasil Disimpan ke Google Sheets!');
     location.reload();
+  } catch (err) {
+    alert('❌ Gagal menyimpan: ' + err.message);
+    btn.innerText = '💾 SIMPAN KE GOOGLE SHEETS';
+    btn.disabled = false;
   }
-}
-
-// RIWAYAT CLOUD
-async function loadCloudHistory() {
-  const historyList = document.getElementById('historyList');
-  const { data, error } = await supabase
-    .from('laporan_shift')
-    .select('tanggal, shift, nama_kasir, created_at')
-    .order('created_at', { ascending: false })
-    .limit(5);
-
-  if (error || !data || data.length === 0) {
-    historyList.innerHTML = '<div style="text-align:center; color:#64748b; padding: 10px;">Belum ada riwayat di cloud</div>';
-    return;
-  }
-
-  let html = '';
-  data.forEach(item => {
-    html += `
-      <div class="history-item">
-        <div>
-          <strong>${item.nama_kasir}</strong> (${item.shift})<br>
-          <small style="color:#64748b;">📅 ${item.tanggal}</small>
-        </div>
-        <span style="color: #166534; font-weight:600; font-size:11px; background:#dcfce7; padding:2px 6px; border-radius:4px;">Tersimpan</span>
-      </div>
-    `;
-  });
-  historyList.innerHTML = html;
 }
 </script>
 </body>
