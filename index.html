@@ -263,10 +263,20 @@ input:focus, select:focus {
 const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyQTjYdyAFnXo0rpSjkwVd0G2djepLDkLI5XTOAJ240SMX_BjSgtY1vdFch0_4OBy4/exec";
 const targetIds = ['ev_target', 'psm_target', 'pwp_target', 'sergap_target', 'bev_target', 'member_target', 'cemilan_target'];
 
-document.getElementById('tanggal').valueAsDate = new Date();
+// Mengatur tanggal otomatis berdasarkan waktu online/real-time device (format YYYY-MM-DD menggunakan waktu lokal perangkat)
+function setRealtimeDate() {
+  const now = new Date();
+  const year = now.getFullYear();
+  const month = String(now.getMonth() + 1).padStart(2, '0');
+  const day = String(now.getDate()).padStart(2, '0');
+  document.getElementById('tanggal').value = `${year}-${month}-${day}`;
+}
+
+setRealtimeDate();
 
 window.onload = function() {
   fetchTargets();
+  updatePreview();
 };
 
 async function fetchTargets() {
@@ -485,4 +495,4 @@ async function simpanKeGoogleSheets(){
 }
 </script>
 </body>
-</html>
+                                                 </html>
